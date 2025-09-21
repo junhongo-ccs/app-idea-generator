@@ -1,13 +1,23 @@
 import OpenAI from 'openai'
 import { NextRequest, NextResponse } from 'next/server'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
+// OpenAIクライアントの初期化をtry-catch内に移動
 export async function POST(request: NextRequest) {
   try {
     const { idea, users, period } = await request.json()
+    
+    // APIキーの存在確認
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set')
+      return NextResponse.json(
+        { error: 'OpenAI API key is not configured' },
+        { status: 500 }
+      )
+    }
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
     
     const prompt = `
 あなたは経験豊富なシステムエンジニアです。以下のアプリアイデアについて、詳細な技術構成を提案してください。
